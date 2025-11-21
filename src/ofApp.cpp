@@ -58,6 +58,14 @@ void ofApp::update(){
 	flatcar->position.z = 0;
 	// snap train to the slope so that it maintains contact with the ground and has the correct vertical position at that point in the simulation
 	flatcar->position.y = getSlopeHeight(flatcar->position.x);
+	
+	// set camera to point at train from a good angle
+	/* ENABLE FOR CINEMATIC TRAIN ANGLE */
+	//glm::vec3 cameraOffset(600, 200, 250);
+
+	//camera.setPosition(flatcar->position + cameraOffset);
+
+	//camera.setTarget(flatcar->position);
 
 	/* Jello TODO */
 }
