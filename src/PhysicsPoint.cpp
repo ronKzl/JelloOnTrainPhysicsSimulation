@@ -11,11 +11,19 @@ void PhysicsPoint::applyForce(const glm::vec3& F) {
 }
 
 void PhysicsPoint::update(float dt) {
-    // Euler integration
+    // calc new velocity using Euler integration
     velocity += acceleration * dt;
-    position += velocity * dt;
+    
+    // dampen to take energy out of the system
+    velocity *= exp(-n * dt);
 
-    this->setPosition(position);
+    // calc new position using Euler integration
+    position += velocity * dt;
+    setPosition(position);
+    
+    // reset acceleration or it will just fly off
+    acceleration = glm::vec3(0,0,0);
+    
 }
 
 void PhysicsPoint::draw(){
