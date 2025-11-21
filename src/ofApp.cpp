@@ -28,20 +28,36 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
 
-	float dt = ofGetElapsedTimef();
+	float dt = 1.0f / 6.0f;
 	/*  Train force calculations */
 	glm::vec3 gravity = calcGravityForce(flatcar->mass);
+	
+	glm::vec3 inputForce(0, 0, 0);
+	
+	if (isMovingRight) {
+		inputForce.x = pushStrength;
+	}
+	if (isMovingLeft) {
+		inputForce.x = -pushStrength;
+	}
+
+	glm::vec3 totalExternalForce = gravity + inputForce;
+	
+	
 	glm::vec3 tangent = getSlopeTangent(flatcar->position.x);
 	glm::vec3 normal = getSurfaceNormal(tangent);
 
-	glm::vec3 normalForce = calcNormalForce(gravity, normal);
+	glm::vec3 normalForce = calcNormalForce(totalExternalForce, normal);
 
 	flatcar->applyForce(gravity);
+	flatcar->applyForce(inputForce);
 	flatcar->applyForce(normalForce);
 
 	flatcar->update(dt);
 
 	flatcar->position.z = 0;
+	// snap train to the slope so that it maintains contact with the ground and has the correct vertical position at that point in the simulation
+	flatcar->position.y = getSlopeHeight(flatcar->position.x);
 
 	/* Jello TODO */
 }
@@ -54,6 +70,8 @@ void ofApp::draw(){
 	slope->draw();
 
 	flatcar->drawBox();
+	ofSetColor(255, 255, 0);
+	
 
 	camera.end();
 }
@@ -74,7 +92,12 @@ void ofApp::keyPressed(int key){
 }
 
 void ofApp::keyReleased(int key) {
-
+	if (key == 'a' || key == 'A') {
+		isMovingLeft = false;
+	}
+	if (key == 'd' || key == 'D') {
+		isMovingRight = false;
+	}
 }
 
 /*
@@ -107,10 +130,13 @@ glm::vec3 ofApp::getSurfaceNormal(glm::vec3 tangent) {
 /*
 calc the normal force acting on an object with respect to gravity
 */
-glm::vec3 ofApp::calcNormalForce(glm::vec3 gravity, glm::vec3 normal) {
-	float perpendicularComponent = glm::dot(gravity, normal);
-
-	return normal * -perpendicularComponent;
+glm::vec3 ofApp::calcNormalForce(glm::vec3 force, glm::vec3 normal) {
+	/*float perpendicularComponent = glm::dot(gravity, normal);*/
+	float mag = -force.y / normal.y;
+	if (abs(normal.y) < 0.0001f) {
+		return glm::vec3(0, 0, 0);
+	}
+	return normal * mag;
 }
 /*
 Get the slope Y position for a given X coordinate

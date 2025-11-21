@@ -10,7 +10,7 @@ public:
 	glm::vec3 velocity;
     glm::vec3 acceleration;
 	float size;
-    float n = 0.99;
+    float friction = 0.005;
     
     PhysicsPoint(float m, const glm::vec3& pos, float size);
 

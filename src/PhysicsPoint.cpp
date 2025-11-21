@@ -15,7 +15,7 @@ void PhysicsPoint::update(float dt) {
     velocity += acceleration * dt;
     
     // dampen to take energy out of the system
-    velocity *= exp(-n * dt);
+    velocity *= exp(-friction * dt);
 
     // calc new position using Euler integration
     position += velocity * dt;
