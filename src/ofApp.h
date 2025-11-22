@@ -3,6 +3,15 @@
 #include "ofMain.h"
 #include "PhysicsPoint.h"
 
+// struct that has the attachment info for all attachment pieces
+struct Spring {
+	PhysicsPoint* p1;
+	PhysicsPoint* p2;
+	float restLength;
+	float k; // spring constant
+};
+
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -38,4 +47,20 @@ class ofApp : public ofBaseApp{
 		// train push state
 		bool isMovingRight = false;
 		bool isMovingLeft = false;
+
+		vector<vector<vector<PhysicsPoint*>>> jelloPoints;
+		vector<Spring> springs;
+
+		int gridSize = 4;       
+		float spacing = 20.0;   // distance between points
+		float springK = 2.0;  // stiffness (tweak this later)
+		const vector<glm::vec3> pointNeighbours = {
+			glm::vec3(0,0,1),
+			glm::vec3(0,1,0),
+			glm::vec3(1,0,0),
+			glm::vec3(1,1,0),
+			glm::vec3(0,1,1),
+			glm::vec3(1,0,1),
+			glm::vec3(1,1,1),
+		};
 };
