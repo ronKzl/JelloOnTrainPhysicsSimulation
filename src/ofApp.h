@@ -51,16 +51,26 @@ class ofApp : public ofBaseApp{
 		vector<vector<vector<PhysicsPoint*>>> jelloPoints;
 		vector<Spring> springs;
 
-		int gridSize = 4;       
+		int gridSize = 4;        
 		float spacing = 20.0;   // distance between points
-		float springK = 2.0;  // stiffness (tweak this later)
+		float springK = 300.0;  // spring coefficient
+		// point can be connected to total of 13 possible neigbour points without overlap (with overlap its 26)
+		// cuz 3x3x3 = 27 - 1 = 26 neigbour connections but counting twice so 26/2 = 13
 		const vector<glm::vec3> pointNeighbours = {
-			glm::vec3(0,0,1),
-			glm::vec3(0,1,0),
-			glm::vec3(1,0,0),
-			glm::vec3(1,1,0),
-			glm::vec3(0,1,1),
-			glm::vec3(1,0,1),
-			glm::vec3(1,1,1),
+			glm::vec3(0, 0, 1),
+			glm::vec3(0, 1, 0),  
+			glm::vec3(1, 0, 0),  
+			glm::vec3(0, 1, 1), 
+			glm::vec3(1, 0, 1),  
+			glm::vec3(1, 1, 0),  
+			glm::vec3(1, 1, 1),  
+			// backwards in Z
+			glm::vec3(0, 1, -1),
+			glm::vec3(1, 0, -1),
+			glm::vec3(1, 1, -1), 
+			// downwards in Y
+			glm::vec3(1, -1, 0),
+			glm::vec3(1, -1, 1), 
+			glm::vec3(1, -1, -1), 
 		};
 };

@@ -45,10 +45,10 @@ void ofApp::setup(){
 				// y * spacing starts at 0, so bottom layer is at 0
 				glm::vec3 pos(x * spacing - offsetX, y * spacing + 20, z * spacing - offsetZ);
 
-				// create a physics point
-				PhysicsPoint* p = new PhysicsPoint(20.0, pos, 5.0);
+				// create a physics point (change mass to get a better jiggle bigger mass is worse it seems like)
+				PhysicsPoint* p = new PhysicsPoint(2.0, pos, 6.0);
 				jelloPoints[x][y][z] = p;
-				std::cout << p->friction << std::endl;
+				
 			}
 		}
 	}
@@ -69,8 +69,8 @@ void ofApp::setup(){
 					int nx = x + nei.x;
 					int ny = y + nei.y;
 					int nz = z + nei.z;
-					
-					if (nx >= gridSize ||ny >= gridSize || nz >= gridSize) {
+
+					if (nx >= gridSize ||ny >= gridSize || nz >= gridSize || nx < 0 || ny < 0 || nz < 0) {
 						continue; // out of bounds continue
 					}
 
@@ -97,7 +97,7 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
 
-	float dt = 1.0f / 6.0f;
+	float dt = 1.0f / 24.0f;
 	/*  Train force calculations */
 	glm::vec3 gravity = calcGravityForce(flatcar->mass);
 	
@@ -136,8 +136,7 @@ void ofApp::update(){
 
 	//camera.setTarget(flatcar->position);
 
-	/* Jello TODO */
-
+	/* Jello position and force calcs */
 
 	// update the bottom layer of jello Y = 0 so that it will always match the position of the train car and will be on top of it
 	float offsetX = (gridSize - 1) * spacing * 0.5;
@@ -152,33 +151,33 @@ void ofApp::update(){
 			// set at Y = 10 to make it seem like it sits on top of the train
 			glm::vec3 relativePos(x * spacing - offsetX, 10.0, z * spacing - offsetZ);
 
-			// Set position absolute to the train
+			// set position absolute to the train
 			p->position = flatcar->position + relativePos;
 
-			// match velocity because convservation of momentum?
-			//p->velocity = flatcar->velocity;
+			// transfer velocity to anchor points
+			p->velocity = flatcar->velocity;
 		}
 	}
 
 	// calc the spring force and apply it
-	// for each connection, get the displacmenet stretch/contraction vs at rest length
-	// calc the force F = -k * displacment
-	// update the 2 connection points
 	for (Spring& connection : springs) {
-		// vector from jello point 2 to jello point 1
-		//glm::vec3 lengthDiff = connection.p1->position - connection.p2->position;
+		// calc the current length of the spring (distance between the position of the 2 jello points
+		float curLength = glm::distance(connection.p1->position, connection.p2->position);
 
-		//float curLength = glm::length(lengthDiff);
-		glm::vec3 direction = glm::normalize(connection.p1->position - connection.p2->position);
+		// calc delta x 
+		float displacement = curLength - connection.restLength;
 		
-		float displacement = glm::distance(connection.p1->position, connection.p2->position);
+		// find out the direction of the force (shrink/expand)
+		glm::vec3 direction = (connection.p1->position - connection.p2->position) / curLength;
 
+		// construct the force vector direction * hook law
 		glm::vec3 force = direction * (-connection.k * displacement);
 
-		// p1 gets pulled towards p2
+		// apply force 1 point in positive direction the other in negative direction so they will respectively push/pull
 		connection.p1->applyForce(force);
-		// p2 gets pulled towards p1 (opposite direction)
 		connection.p2->applyForce(-force);
+
+	
 	}
 
 	//now apply gravity to all points & call update
@@ -186,10 +185,9 @@ void ofApp::update(){
 	for (int x = 0; x < gridSize; x++) {
 		for (int y = 0; y < gridSize; y++) {
 			for (int z = 0; z < gridSize; z++) {
-				//if (y == 0) continue;
-				//jelloPoints[x][y][z]->velocity = flatcar->velocity;
-				//jelloPoints[x][y][z]->applyForce(calcGravityForce(jelloPoints[x][y][z]->mass));
-				//jelloPoints[x][y][z]->applyForce(calcNormalForce(calcGravityForce(jelloPoints[x][y][z]->mass), normal));
+				if (y == 0) continue;
+				jelloPoints[x][y][z]->applyForce(calcGravityForce(jelloPoints[x][y][z]->mass));
+				jelloPoints[x][y][z]->applyForce(calcNormalForce(calcGravityForce(jelloPoints[x][y][z]->mass), normal));
 				jelloPoints[x][y][z]->update(dt);
 
 			}
@@ -216,8 +214,8 @@ void ofApp::draw(){
 		}
 	}
 
-	// Optional: Draw Springs to see connections (helps debugging!)
-	ofSetColor(255, 255, 255, 50); // Transparent white
+	
+	ofSetColor(255, 255, 255, 50); 
 	for (Spring& s : springs) {
 		ofDrawLine(s.p1->position, s.p2->position);
 	}
