@@ -5,7 +5,9 @@
 PhysicsPoint::PhysicsPoint(float m, const glm::vec3& pos, float s, float friction): mass(m), position(pos),
 velocity(0), acceleration(0), size(s), friction(friction){}
 
-
+/*
+from the slides calc acceleration as F/m
+*/
 void PhysicsPoint::applyForce(const glm::vec3& F) {
     acceleration += F / mass;
 }
@@ -29,7 +31,7 @@ void PhysicsPoint::update(float dt) {
 void PhysicsPoint::draw(){
     ofPushMatrix();
     ofTranslate(position);
-    ofSetColor(0, 100, 100);
+    ofSetColor(255, 0, 0);
     ofDrawSphere(0, 0, 0, size * 0.5f);
     ofPopMatrix();
 }
@@ -37,7 +39,7 @@ void PhysicsPoint::draw(){
 void PhysicsPoint::drawBox() {
     ofPushMatrix();
     ofTranslate(position);
-    ofSetColor(255, 100, 100);
+    ofSetColor(0, 0, 255);
     ofDrawBox(size * 3.0f, size * 0.5f, size * 3.0f);
     ofPopMatrix();
 }
