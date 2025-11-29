@@ -44,6 +44,11 @@ class ofApp : public ofBaseApp{
 		const float noiseScaleX = 0.001;
 		const float noiseScaleY = 750.0;
 
+		const float jelloMass = 5.0;
+		const float jelloSize = 6.0;
+		const float trainMass = 50.0;
+		const float trainSize = 30.0;
+
 		// train push state
 		bool isMovingRight = false;
 		bool isMovingLeft = false;
@@ -52,7 +57,7 @@ class ofApp : public ofBaseApp{
 
 		int gridSize = 4; // particle field box size 4x4x4      
 		float spacing = 20.0;   // distance between points
-		float springK = 400.0;  // k-spring coefficient
+		float springK = 200.0;  // k-spring coefficient
 		// for jello points spacing
 		float offsetX = (gridSize - 1) * spacing * 0.5;
 		float offsetZ = (gridSize - 1) * spacing * 0.5;

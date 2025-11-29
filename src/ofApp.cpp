@@ -10,7 +10,7 @@ void ofApp::setup(){
 	ofSetFrameRate(60);
 	ofSetSmoothLighting(true);
 
-	PhysicsPoint* train = new PhysicsPoint(50.0, glm::vec3(0, 0, 0), 30.0, 0.05);
+	PhysicsPoint* train = new PhysicsPoint(trainMass, glm::vec3(0, 0, 0), trainSize, 0.05);
 	flatcar = train;
 	
 	camera.setPosition(0, 0, 1100);
@@ -46,7 +46,7 @@ void ofApp::setup(){
 				// y * spacing starts at 0, so bottom layer is at 0
 				glm::vec3 pos(x * spacing - offsetX, y * spacing + 10, z * spacing - offsetZ);
 
-				PhysicsPoint* p = new PhysicsPoint(8.0, pos, 6.0);
+				PhysicsPoint* p = new PhysicsPoint(jelloMass, pos, jelloSize);
 				jelloPoints[x][y][z] = p;
 				
 			}
@@ -96,46 +96,40 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
 
-	
-	int subSteps = 20;
-	float dt = (1.0f / 60.0f) / subSteps;
-	
-	// update for slow increments so that Euler intergration remains relatively accurate and things don't go boom
-	for (int step = 0; step < subSteps; step++) {
+	float dt = 1.0f / 12.0f;
 		
-		/*  Train force calculations */
-		simulateTrainCar(dt);
+	/*  Train force calculations */
+	simulateTrainCar(dt);
 
-		// set camera to point at train from a good angle if cinematic mode enabled
+	// set camera to point at train from a good angle if cinematic mode enabled
 
-		if (isCinematic) {
-			/*glm::vec3 cameraOffset(500, 200, 250);
+	if (isCinematic) {
+		/*glm::vec3 cameraOffset(500, 200, 250);
 
-			camera.setPosition(flatcar->position + cameraOffset);
+		camera.setPosition(flatcar->position + cameraOffset);
 
-			camera.setTarget(flatcar->position);*/
+		camera.setTarget(flatcar->position);*/
 
-			glm::vec3 cameraOffset(0, 100, 300);
+		glm::vec3 cameraOffset(0, 100, 300);
 
-			// Smoothly interpolate camera position for a "Director" feel (Optional, but nice)
-			// or just set it directly:
-			camera.setPosition(flatcar->position + cameraOffset);
+		// Smoothly interpolate camera position for a "Director" feel (Optional, but nice)
+		// or just set it directly:
+		camera.setPosition(flatcar->position + cameraOffset);
 
-			// Look slightly above the flatcar center (at the middle of the Jello)
-			// flatcar->size is 30, so flatcar->position is the bottom center.
-			// Jello is ~60-80 units high. Looking at Y+40 centers the Jello.
-			glm::vec3 lookAtPoint = flatcar->position;
-			lookAtPoint.y += 40.0;
+		// Look slightly above the flatcar center (at the middle of the Jello)
+		// flatcar->size is 30, so flatcar->position is the bottom center.
+		// Jello is ~60-80 units high. Looking at Y+40 centers the Jello.
+		glm::vec3 lookAtPoint = flatcar->position;
+		lookAtPoint.y += 40.0;
 
-			camera.setTarget(lookAtPoint);
-		}
+		camera.setTarget(lookAtPoint);
+	}
 		
 
-		/* Jello position and force calcs */
-		simulateJello(dt);
-	} 
+	/* Jello position and force calcs */
+	simulateJello(dt);
+} 
 
-}
 
 
 

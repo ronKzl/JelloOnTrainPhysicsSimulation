@@ -12,7 +12,7 @@ public:
 	float size;
     float friction;
     
-    PhysicsPoint(float m, const glm::vec3& pos, float size, float friction = 0.2);
+    PhysicsPoint(float m, const glm::vec3& pos, float size, float friction = 0.99);
 
     
     void applyForce(const glm::vec3& F); 
