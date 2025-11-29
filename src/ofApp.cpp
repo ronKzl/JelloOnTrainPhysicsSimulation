@@ -309,8 +309,6 @@ void ofApp::simulateJello(float dt) {
 			// set position absolute to the train
 			p->position = flatcar->position + relativePos;
 
-			// transfer velocity to anchor points
-			p->velocity = flatcar->velocity;
 
 		}
 	}
@@ -343,26 +341,21 @@ void ofApp::simulateJello(float dt) {
 
 	//now apply gravity to all points & call update
 	for (int x = 0; x < gridSize; x++) {
-		for (int y = 0; y < gridSize; y++) {
+		for (int y = 1; y < gridSize; y++) { // except for the bottom layer which is nailed to the train (I guess irl would be tension force)
 			for (int z = 0; z < gridSize; z++) {
-				
-				jelloPoints[x][y][z]->applyForce(calcGravityForce(jelloPoints[x][y][z]->mass));
-				
-				if (y > 0) {
-					
-					float floorLevel = flatcar->position.y;
-
-					if (jelloPoints[x][y][z]->position.y < floorLevel) {
-						jelloPoints[x][y][z]->position.y = floorLevel;
-					
-						if (jelloPoints[x][y][z]->velocity.y < 0) {
-							jelloPoints[x][y][z]->velocity.y = 0;
-						}
+				PhysicsPoint* p = jelloPoints[x][y][z];
+				p->applyForce(calcGravityForce(p->mass));
+				p->update(dt);
+				float floorLevel = flatcar->position.y;
+				// if point ends up below the train snap it back above to the train level so it can self correct
+				if (p->position.y < floorLevel) {
+					p->position.y = floorLevel;
+					if (p->velocity.y < 0) {
+						p->velocity.y = 0;
 					}
 				}
-				jelloPoints[x][y][z]->update(dt);
 				
-			}
+			}	
 		}
 	}
 }
