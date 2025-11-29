@@ -16,7 +16,7 @@ void ofApp::setup(){
 	camera.setPosition(0, 0, 1100);
 	camera.lookAt(glm::vec3(0, 0, 0));
 
-	// make the hilly slope
+	// make the slope points
 	float start = -20000.0;
 	float end = 20000.0;
 	ofPolyline* s = new ofPolyline();
@@ -24,10 +24,9 @@ void ofApp::setup(){
 		float y = getSlopeHeight(x);
 		s->addVertex(x, y, 0);
 	}
-
 	slope = s;
 
-	// allocate memory for the 3D particle matrix vector
+	// allocate memory for the particle matrix
 	jelloPoints.resize(gridSize);
 	for (int x = 0; x < gridSize; x++) {
 		jelloPoints[x].resize(gridSize);
@@ -37,11 +36,9 @@ void ofApp::setup(){
 	}
 
 	// populate the Jello Particle grid with physics points
-
 	for (int x = 0; x < gridSize; x++) {
 		for (int y = 0; y < gridSize; y++) {
 			for (int z = 0; z < gridSize; z++) {
-
 				// position relative to the train center
 				// y * spacing starts at 0, so bottom layer is at 0
 				glm::vec3 pos(x * spacing - offsetX, y * spacing + 10, z * spacing - offsetZ);
@@ -80,14 +77,11 @@ void ofApp::setup(){
 					s.p1 = cur;
 					s.p2 = neighbour;
 					
-
 					// calc rest length based on current distance
 					s.restLength = glm::distance(cur->position, neighbour->position);
 
 					springs.push_back(s);
-					
 				}
-
 			}
 		}
 	}
@@ -102,30 +96,18 @@ void ofApp::update(){
 	simulateTrainCar(dt);
 
 	// set camera to point at train from a good angle if cinematic mode enabled
-
 	if (isCinematic) {
-		/*glm::vec3 cameraOffset(500, 200, 250);
-
-		camera.setPosition(flatcar->position + cameraOffset);
-
-		camera.setTarget(flatcar->position);*/
 
 		glm::vec3 cameraOffset(0, 100, 300);
 
-		// Smoothly interpolate camera position for a "Director" feel (Optional, but nice)
-		// or just set it directly:
 		camera.setPosition(flatcar->position + cameraOffset);
 
-		// Look slightly above the flatcar center (at the middle of the Jello)
-		// flatcar->size is 30, so flatcar->position is the bottom center.
-		// Jello is ~60-80 units high. Looking at Y+40 centers the Jello.
 		glm::vec3 lookAtPoint = flatcar->position;
 		lookAtPoint.y += 40.0;
 
 		camera.setTarget(lookAtPoint);
 	}
 		
-
 	/* Jello position and force calcs */
 	simulateJello(dt);
 } 
@@ -329,7 +311,7 @@ void ofApp::simulateJello(float dt) {
 
 			// transfer velocity to anchor points
 			p->velocity = flatcar->velocity;
-			p->update(dt);
+
 		}
 	}
 
@@ -337,6 +319,11 @@ void ofApp::simulateJello(float dt) {
 	for (Spring& connection : springs) {
 		// calc the current length of the spring (distance between the position of the 2 jello points
 		float curLength = glm::distance(connection.p1->position, connection.p2->position);
+
+		// if points are almost touching, skip force calculations to prevent them exploding
+		if (curLength < 0.0001f) {
+			continue;
+		}
 
 		// calc delta x 
 		float displacement = curLength - connection.restLength;
@@ -358,9 +345,23 @@ void ofApp::simulateJello(float dt) {
 	for (int x = 0; x < gridSize; x++) {
 		for (int y = 0; y < gridSize; y++) {
 			for (int z = 0; z < gridSize; z++) {
+				
 				jelloPoints[x][y][z]->applyForce(calcGravityForce(jelloPoints[x][y][z]->mass));
-				jelloPoints[x][y][z]->update(dt);
+				
+				if (y > 0) {
+					
+					float floorLevel = flatcar->position.y;
 
+					if (jelloPoints[x][y][z]->position.y < floorLevel) {
+						jelloPoints[x][y][z]->position.y = floorLevel;
+					
+						if (jelloPoints[x][y][z]->velocity.y < 0) {
+							jelloPoints[x][y][z]->velocity.y = 0;
+						}
+					}
+				}
+				jelloPoints[x][y][z]->update(dt);
+				
 			}
 		}
 	}
