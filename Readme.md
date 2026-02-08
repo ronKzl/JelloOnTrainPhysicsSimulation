@@ -2,7 +2,9 @@
 
 A real-time 3D physics simulation built in **C++** using **openFrameworks**. The project demonstrates complex physical interactions between a soft-body "Jello" mass and a moving train car traversing procedurally generated terrain.
 
+## 📽 Demo Video
 [![Jello Physics Demo](https://img.youtube.com/vi/_RVCY_j9rXw/maxresdefault.jpg)](https://youtu.be/_RVCY_j9rXw)
+*(Click the image to play the video on YouTube)*
 
 ## 🛠 Technical Implementation
 
@@ -32,4 +34,5 @@ The "Jello" is modeled as a 4x4x4 grid of 64 individual physics particles.
 ## 📦 Build Requirements
 * **Environment**: Developed in Visual Studio 2022.
 * **Framework**: Requires [openFrameworks v0.12.1+](https://openframeworks.cc/).
+
 * **Libraries**: Standard openFrameworks core libraries and GLM for vector mathematics.
